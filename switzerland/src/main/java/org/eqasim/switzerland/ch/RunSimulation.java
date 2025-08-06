@@ -13,27 +13,14 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.contrib.sharing.run.SharingConfigGroup;
-import org.matsim.contrib.sharing.run.SharingModule;
-import org.matsim.contrib.sharing.run.SharingServiceConfigGroup;
-import org.matsim.contrib.sharing.run.SharingServiceConfigGroup.ServiceScheme;
-import org.matsim.contrib.sharing.service.SharingUtils;
-import org.matsim.core.config.CommandLine;
-import org.matsim.core.config.CommandLine.ConfigurationException;
-import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
+import org.matsim.contrib.shared_mobility.run.SharingConfigGroup;
+import org.matsim.contrib.shared_mobility.run.SharingModule;
+import org.matsim.contrib.shared_mobility.run.SharingServiceConfigGroup;
+import org.matsim.contrib.shared_mobility.run.SharingServiceConfigGroup.ServiceScheme;
+import org.matsim.contrib.shared_mobility.service.SharingUtils;
 import org.matsim.core.config.groups.ScoringConfigGroup.ActivityParams;
 import org.matsim.core.config.groups.ScoringConfigGroup.ModeParams;
 import org.matsim.core.config.groups.RoutingConfigGroup.ModeRoutingParams;
-import org.matsim.core.controler.Controler;
-import org.matsim.core.config.groups.ScoringConfigGroup.ActivityParams;
-import org.matsim.core.config.groups.ScoringConfigGroup.ModeParams;
-import org.matsim.core.config.groups.RoutingConfigGroup.ModeRoutingParams;
-import org.matsim.contrib.sharing.run.SharingConfigGroup;
-import org.matsim.contrib.sharing.run.SharingModule;
-import org.matsim.contrib.sharing.run.SharingServiceConfigGroup;
-import org.matsim.contrib.sharing.run.SharingServiceConfigGroup.ServiceScheme;
-import org.matsim.contrib.sharing.service.SharingUtils;
 
 import ch.sbb.matsim.mobsim.qsim.SBBTransitModule;
 import ch.sbb.matsim.mobsim.qsim.pt.SBBTransitEngineQSimModule;
@@ -134,9 +121,9 @@ public class RunSimulation {
         // To use the deterministic pt simulation (Part 2 of 2):
         controller.configureQSimComponents(components -> {
             new SBBTransitEngineQSimModule().configure(components);
-			SharingUtils.configureQSim(sharingConfig).call(components);
+			SharingUtils.configureQSim(sharingConfig).configure(components);
         });
 
 		controller.run();
-	}§
+	}
 }
