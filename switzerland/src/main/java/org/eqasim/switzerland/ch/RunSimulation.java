@@ -20,7 +20,7 @@ import org.matsim.contrib.shared_mobility.run.SharingServiceConfigGroup.ServiceS
 import org.matsim.contrib.shared_mobility.service.SharingUtils;
 import org.matsim.core.config.groups.ScoringConfigGroup.ActivityParams;
 import org.matsim.core.config.groups.ScoringConfigGroup.ModeParams;
-import org.matsim.core.config.groups.RoutingConfigGroup.ModeRoutingParams;
+import org.matsim.core.config.groups.RoutingConfigGroup;
 
 import ch.sbb.matsim.mobsim.qsim.SBBTransitModule;
 import ch.sbb.matsim.mobsim.qsim.pt.SBBTransitEngineQSimModule;
@@ -40,17 +40,20 @@ public class RunSimulation {
 		cmd.applyConfiguration(config);
 
 		// We define bike to be routed based on Euclidean distance.
-		ModeRoutingParams bikeRoutingParams = new ModeRoutingParams("bike");
+		RoutingConfigGroup.TeleportedModeParams bikeRoutingParams = new RoutingConfigGroup.TeleportedModeParams("bikeshare");
 		bikeRoutingParams.setTeleportedModeSpeed(5.0);
 		bikeRoutingParams.setBeelineDistanceFactor(1.3);
-		config.routing().addModeRoutingParams(bikeRoutingParams);
+		config.routing().addTeleportedModeParams(bikeRoutingParams);
 
 		// Walk is deleted by adding bike here, we need to re-add it ...
-		ModeRoutingParams walkRoutingParams = new ModeRoutingParams("walk");
+		RoutingConfigGroup.TeleportedModeParams walkRoutingParams = new RoutingConfigGroup.TeleportedModeParams("walking");
 		walkRoutingParams.setTeleportedModeSpeed(2.0);
 		walkRoutingParams.setBeelineDistanceFactor(1.3);
-		config.routing().addModeRoutingParams(walkRoutingParams);
+		config.routing().addTeleportedModeParams(walkRoutingParams);
 
+		// By default, "bike" will be simulated using teleportation.
+
+		// We need to add the sharing config group
 		SharingConfigGroup sharingConfig = new SharingConfigGroup();
 		config.addModule(sharingConfig);
 
@@ -58,8 +61,8 @@ public class RunSimulation {
 		SharingServiceConfigGroup serviceConfig = new SharingServiceConfigGroup();
 		sharingConfig.addService(serviceConfig);
 
-		// ... with a service id. The respective mode will be "sharing:velib".
-		serviceConfig.setId("velib");
+		// ... with a service id. The respective mode will be "sharing:publibike".
+		serviceConfig.setId("publibike");
 
 		// ... with freefloating characteristics
 		serviceConfig.setMaximumAccessEgressDistance(100000);
@@ -71,9 +74,9 @@ public class RunSimulation {
 		serviceConfig.setServiceInputFile("shared_taxi_vehicles_stations.xml");
 
 		// ... and, we need to define the underlying mode, here "bike".
-		serviceConfig.setMode("bike");
+		serviceConfig.setMode("bikeshare");
 
-		// Finally, we need to make sure that the service mode (sharing:velib) is
+		// Finally, we need to make sure that the service mode (sharing:publibike) is
 		// considered in mode choice.
 		List<String> modes = new ArrayList<>(Arrays.asList(config.subtourModeChoice().getModes()));
 		modes.add(SharingUtils.getServiceMode(serviceConfig));
@@ -93,9 +96,13 @@ public class RunSimulation {
 		config.scoring().addActivityParams(bookingParams);
 
 		// We need to score bike
-		ModeParams bikeScoringParams = new ModeParams("bike");
+		ModeParams bikeScoringParams = new ModeParams("bikeshare");
 		config.scoring().addModeParams(bikeScoringParams);
 
+		// Write out all events (DEBUG)
+		config.controller().setWriteEventsInterval(1);
+		config.controller().setWritePlansInterval(1);
+		config.controller().setLastIteration(10);
 
 		if (cmd.hasOption("preventwaitingtoentertraffic")) {
 			if (cmd.getOption("preventwaitingtoentertraffic").get().equals("y")) {
